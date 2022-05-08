@@ -6,6 +6,7 @@ import com.example.backend.Entity.Product;
 import com.example.backend.Entity.Role;
 import com.example.backend.Entity.User;
 import com.example.backend.Model.LoginInput;
+import com.example.backend.Model.ProfileResponse;
 import com.example.backend.Repository.OrderRepository;
 import com.example.backend.Repository.ProductRepository;
 import com.example.backend.Repository.RoleRepository;
@@ -42,12 +43,6 @@ public class UserService implements UserDetailsService {
     OrderService orderService;
 
     @Autowired
-    EmailService emailService;
-
-    @Autowired
-    UserService userService;
-
-    @Autowired
     ProductService productService;
 
     @Autowired
@@ -66,9 +61,19 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(username);
+        User user = userRepository.findByUsername(username);
         if (user == null) throw new UsernameNotFoundException("Пользователь не найден");
         return user;
+    }
+
+    public ProfileResponse getProfile(){
+        User user = findByUsername(String.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal()));
+        List<Order> orders = orderRepository.findByUserId(user.getId());
+        return new ProfileResponse(user,orders);
+    }
+
+    public User findByUsername(String username){
+        return userRepository.findByUsername(username);
     }
 
     public List<User> allUsers() {
@@ -79,38 +84,61 @@ public class UserService implements UserDetailsService {
         if (userRepository.findByUsername(user.getUsername()) != null) {
             return "Этот логин занят";
         }
-        if(userRepository.findByEmail(user.getEmail())!=null){
-            return "Этот email занят";
-        }
         user.setRoles(List.of(new Role(1L,"ROLE_USER")));
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return "";
     }
 
-    public void updateUser(User user){
-        Optional<User> updatedUser = userRepository.findById(user.getId());
-        if(updatedUser.isPresent()){
-            updatedUser.get().setEmail(user.getEmail());
-            userRepository.save(updatedUser.get());
+    public User deleteUser(Long id) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user!=null){
+            userRepository.deleteById(id);
+            return user;
         }
+        else return null;
     }
 
-    public boolean deleteUser(Long userId) {
-        if (userRepository.findById(userId).isPresent()) {
-            userRepository.deleteById(userId);
-            return true;
+    public boolean updateUser(Long id, User updatedUser) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) return false;
+        List<Role> roles = user.getRoles();
+        boolean alreadyExistRoleUser = false;
+        boolean alreadyExistRoleAdmin = false;
+        for (Role role:user.getRoles()){
+            if (role.getName().equals("ROLE_USER")) alreadyExistRoleUser = true;
+            if (role.getName().equals("ROLE_ADMIN")) alreadyExistRoleAdmin = true;
         }
-        return false;
+        boolean requestedRoleUser = false;
+        boolean requestedRoleAdmin = false;
+        for (Role role:updatedUser.getRoles()){
+            if(role.getName().equals("ROLE_USER")) requestedRoleUser =true;
+            if(role.getName().equals("ROLE_ADMIN")) requestedRoleAdmin =true;
+        }
+        if(requestedRoleUser){
+            if(!alreadyExistRoleUser) roles.add(roleRepository.getById(1L));
+        }
+        else{
+            if(alreadyExistRoleUser) roles.remove(roleRepository.getById(1L));
+        }
+        if(requestedRoleAdmin){
+            if(!alreadyExistRoleAdmin) roles.add(roleRepository.getById(2L));
+        }
+        else{
+            if(alreadyExistRoleAdmin) roles.remove(roleRepository.getById(2L));
+        }
+        user.setRoles(roles);
+        userRepository.save(user);
+        return true;
     }
 
-    public User findByEmail(String email){
-        return userRepository.findByEmail(email);
+    public User findConcreteUser(Long id) {
+        return userRepository.findById(id).orElse(null);
     }
 
     public ResponseEntity<String> login (LoginInput loginInput){
-        if(userRepository.findByEmail(loginInput.getEmail()) !=null){
-            User user = userRepository.findByEmail(loginInput.getEmail());
+        if(userRepository.findByUsername(loginInput.getEmail()) !=null){
+            User user = userRepository.findByUsername(loginInput.getEmail());
             if (bCryptPasswordEncoder.matches(loginInput.getPassword(), user.getPassword())) {
                 String token = jwtUtil.generateToken(user);
                 return new ResponseEntity(token, HttpStatus.OK);

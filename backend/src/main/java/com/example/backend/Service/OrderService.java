@@ -3,6 +3,7 @@ package com.example.backend.Service;
 import com.example.backend.Entity.Order;
 import com.example.backend.Entity.Product;
 import com.example.backend.Repository.OrderRepository;
+import com.example.backend.Repository.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,10 +20,10 @@ public class OrderService {
     private OrderRepository orderRepository;
 
     @Autowired
-    OrderService orderService;
+    private ProductRepository productRepository;
 
-    public void addOrder(Order order){
-        orderRepository.save(order);
+    public Order addOrder(Order order){
+        return orderRepository.save(order);
     }
 
     public List<Order> allOrders() {
@@ -31,20 +32,33 @@ public class OrderService {
         return order;
     }
 
-    public void updateOrder(Order order){
-        Order updatedOrder = orderService.findOrder(order.getId());
+    public Order updateOrder(Integer id, Order order){
+        Order updatedOrder = findConcreteOrder(id);
         if (updatedOrder != null){
             if (!order.getStatus().equals("")) updatedOrder.setStatus(order.getStatus());
-            orderRepository.save(updatedOrder);
+            return orderRepository.save(updatedOrder);
         }
+        else return null;
     }
 
     public Order findOrder(Integer id){
-        return orderRepository.findById(id).orElse(null);
+        return orderRepository.findOrderById(id);
     }
 
-    public void deleteOrder(Integer id){
-        orderRepository.deleteById(id);
+    public Order deleteOrder(Integer id){
+        Order order = orderRepository.findById(id).orElse(null);
+        if (order!=null){
+            Product product = productRepository.findById(order.getProduct_id()).orElse(null);
+            product.setOrder_id(null);
+            productRepository.save(product);
+            orderRepository.deleteById(id);
+            return order;
+        }
+        else return null;
+    }
+
+    public Order findConcreteOrder(Integer id) {
+        return orderRepository.findOrderById(id);
     }
 }
 

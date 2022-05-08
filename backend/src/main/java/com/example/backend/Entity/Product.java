@@ -33,7 +33,11 @@ public class Product implements Serializable {
     private String picture;
     private Integer order_id;
 
-    public Product(Integer mileage, Integer number_of_owners, String category, String brand, String model, Integer release_year, String body, String color, String engine, String drive, String wheel, Integer price, String picture, Integer order_id) {
+    public Product() {
+
+    }
+
+    public Product(Integer mileage, Integer number_of_owners, String category, String brand, String model, Integer release_year, String body, String color, String engine, String drive, String wheel, Integer price, String picture) {
         this.mileage = mileage;
         this.number_of_owners = number_of_owners;
         this.category = category;
@@ -47,14 +51,6 @@ public class Product implements Serializable {
         this.wheel = wheel;
         this.price = price;
         this.picture = picture;
-        this.order_id = order_id;
-    }
-
-    public Product() {
-
-    }
-
-    public Product(Integer mileage, Integer number_of_owners, String category, String brand, String model, Integer release_year, String body, String color, String engine, String drive, String wheel, Integer price, String picture) {
     }
 
     public Long getId() {
@@ -177,14 +173,4 @@ public class Product implements Serializable {
         this.order_id = order_id;
     }
 
-    @OneToOne(mappedBy = "product",cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE
-    })
-
-    @ManyToMany(mappedBy = "products",cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE
-    })
-    private Set<User> users;
 }

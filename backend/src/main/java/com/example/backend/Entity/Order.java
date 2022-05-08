@@ -14,13 +14,13 @@ public class Order implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private Integer user_id;
-    private Integer product_id;
+    private Long userId;
+    private Long product_id;
     private String status;
     private String creation_date;
 
-    public Order(Integer user_id, Integer product_id, String status, String creation_date) {
-        this.user_id = user_id;
+    public Order(Long userId, Long product_id, String status, String creation_date) {
+        this.userId = userId;
         this.product_id = product_id;
         this.status = status;
         this.creation_date = creation_date;
@@ -38,19 +38,19 @@ public class Order implements Serializable {
         this.id = id;
     }
 
-    public Integer getUser_id() {
-        return user_id;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser_id(Integer user_id) {
-        this.user_id = user_id;
+    public void setUserId(Long user_id) {
+        this.userId = user_id;
     }
 
-    public Integer getProduct_id() {
+    public Long getProduct_id() {
         return product_id;
     }
 
-    public void setProduct_id(Integer product_id) {
+    public void setProduct_id(Long product_id) {
         this.product_id = product_id;
     }
 

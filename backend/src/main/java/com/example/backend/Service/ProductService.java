@@ -16,7 +16,6 @@ import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -26,52 +25,50 @@ public class ProductService {
     private ProductRepository productRepository;
 
     @Autowired
-    ProductService productService;
-
-    @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private EmailService emailService;
 
     @Autowired
     OrderService orderService;
 
-//    public Product addProduct(Product product) {
-//        if (product.getBrand().equals("") || product.getPrice() == null
-//                || product.getBody().equals("")
-//                || product.getModel().equals("") || product.getRelease_year() == null
-//                || product.getColor().equals("") || product.getEngine().equals("")
-//                || product.getDrive().equals("") || product.getWheel().equals("")
-//                || product.getCategory().equals("") || product.getPicture().equals("")
-//                || (product.getCategory().equals("support car") &&
-//                (product.getMileage() == null || product.getNumber_of_owners() == null))) {
-//            Product new_product = new Product(
-//                    product.getMileage(),
-//                    product.getNumber_of_owners(),
-//                    product.getCategory(),
-//                    product.getBrand(),
-//                    product.getModel(),
-//                    product.getRelease_year(),
-//                    product.getBody(),
-//                    product.getColor(),
-//                    product.getEngine(),
-//                    product.getDrive(),
-//                    product.getWheel(),
-//                    product.getPrice(),
-//                    product.getPicture());
-//            return productRepository.save(new_product);
-//        }
-//    }
+    public Product addProduct(Product product) {
+        if (product.getBrand().equals("") || product.getPrice() == null
+                || product.getBody().equals("")
+                || product.getModel().equals("") || product.getRelease_year() == null
+                || product.getColor().equals("") || product.getEngine().equals("")
+                || product.getDrive().equals("") || product.getWheel().equals("")
+                || product.getCategory().equals("") || product.getPicture().equals("")
+                || (product.getCategory().equals("SUPPORT_CAR") &&
+                (product.getMileage() == null || product.getNumber_of_owners() == null))) {
 
-    public List<Product> findAll() {
-        List <Product> productList = productRepository.findAll();
-        productList.sort(Comparator.comparingInt(Product::getId));
-        return productList;
+            return null;
+        }
+        else{
+            Product new_product = new Product(
+                    product.getMileage(),
+                    product.getNumber_of_owners(),
+                    product.getCategory(),
+                    product.getBrand(),
+                    product.getModel(),
+                    product.getRelease_year(),
+                    product.getBody(),
+                    product.getColor(),
+                    product.getEngine(),
+                    product.getDrive(),
+                    product.getWheel(),
+                    product.getPrice(),
+                    product.getPicture());
+            return productRepository.save(new_product);
+        }
     }
 
-    public void updateProduct(Product product){
-        Product updatedProduct = productService.findProduct(product.getId());
+    public List<Product> findAll() {
+        List <Product> product = productRepository.findAll();
+        product.sort(Comparator.comparingLong(Product::getId));
+        return product;
+    }
+
+    public Product updateProduct(Long id, Product product){
+        Product updatedProduct = findConcreteProduct(id);
         if (updatedProduct != null){
             if (!product.getBrand().equals("")) updatedProduct.setBrand(product.getBrand());
             if (!product.getModel().equals("")) updatedProduct.setModel(product.getModel());
@@ -86,17 +83,20 @@ public class ProductService {
             if (!product.getWheel().equals("")) updatedProduct.setWheel(product.getWheel());
             if (!product.getCategory().equals("")) updatedProduct.setCategory(product.getCategory());
             if (!product.getPicture().equals("")) updatedProduct.setPicture(product.getPicture());
-            productRepository.save(updatedProduct);
+            save(updatedProduct);
+            return updatedProduct;
         }
+        else return null;
     }
 
-    public String bookProduct(Product product){
-        User user = userRepository.findByEmail(String.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal()));
-        String email = user.getEmail();
+    public String bookProduct(Long id){
+        User user = userRepository.findByUsername(String.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal()));
+        String email = user.getUsername();
 
         Order order = new Order();
-        order.setProduct_id(product.getId().intValue());
-        order.setUser_id(user.getId().intValue());
+        Product product = productRepository.findById(id).orElse(null);
+        order.setProduct_id(id);
+        order.setUserId(user.getId());
         order.setStatus("Резерв");
 
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -108,18 +108,29 @@ public class ProductService {
         product.setOrder_id(order.getId());
         productRepository.save(product);
 
-        StringBuilder message = new StringBuilder();
-        message.append(product.toString());
-        emailService.sendmail(message.toString(), email);
-
         return "redirect:/api/user/account";
     }
 
-    public Product findProduct(Long id){
-        return productRepository.findProductById(id.intValue());
+    public void save(Product product) {
+        product.setPicture(parse(product.getPicture()));
+        productRepository.save(product);
     }
 
-    public void deleteProduct(Long id){
-        productRepository.deleteProductById(id.intValue());
+    public Product findConcreteProduct(Long id) {
+        return productRepository.findById(id).orElse(null);
+    }
+
+    public Product deleteProduct(Long id){
+        Product product = productRepository.findById(id).orElse(null);
+        if (product!=null){
+            productRepository.deleteById(id);
+            return product;
+        }
+        else return null;
+    }
+
+    public String parse(String url){
+        if(url.charAt(("https://drive.google.com/").length()) == 'u') return url;
+        return "https://drive.google.com/uc?export=view&id="+url.substring(("https://drive.google.com/file/d/").length(),url.length()-"/view?usp=sharing".length());
     }
 }

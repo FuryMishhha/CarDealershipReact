@@ -20,8 +20,7 @@ public class AuthController {
     @PostMapping("/registration")
     public String addUser(@RequestBody User userForm) {
         if (userForm.getUsername().equals("")||
-                userForm.getPassword().equals("")||
-                userForm.getEmail().equals("")){
+                userForm.getPassword().equals("")){
             return userForm.toString();
         }
         if (!userForm.getPassword().equals(userForm.getPasswordConfirm())){
@@ -33,6 +32,7 @@ public class AuthController {
         }
         return "redirect:/login";
     }
+
     @PostMapping("/login")
     ResponseEntity<String> auth(@RequestBody LoginInput loginInput) {
         return userService.login(loginInput);

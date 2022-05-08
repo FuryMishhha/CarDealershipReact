@@ -3,6 +3,7 @@ package com.example.backend.Config;
 import com.example.backend.Service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -36,11 +37,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
                 .cors()
                 .and()
                 .authorizeHttpRequests()
-                .antMatchers("/**").permitAll()
-                .antMatchers("/auth/**").permitAll()
-                .antMatchers("/user/**").hasRole("USER")
-                .antMatchers("/admin/**").hasRole("ADMIN")
-                .and()
+                .antMatchers("/api/auth/**").permitAll()
+                .antMatchers("/","/products/**","/login","/registration").permitAll()
+                .antMatchers("/api/user/**","/logout","/profile").hasRole("USER")
+                .antMatchers("/api/admin/**","/admin").hasRole("ADMIN")
+                .anyRequest().permitAll().and()
                 .userDetailsService(userService)
                 .exceptionHandling()
                 .authenticationEntryPoint(
