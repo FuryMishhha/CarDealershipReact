@@ -13,11 +13,11 @@ import {
     Row,
     Stack, Table
 } from "react-bootstrap";
-import {useNavigate, useParams} from "react-router-dom";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
 import React from 'react';
 import axios from "axios";
-function MyVerticallyCenteredModal(props) {
+function CarDetails_(props) {
     let navigate = useNavigate();
     const [user, setUser] = useState([]);
     const getUser = async () => {
@@ -35,47 +35,44 @@ function MyVerticallyCenteredModal(props) {
         }
     };
 
-    // const getProduct = async () =>{
-    //     await axios.get("http://localhost:8080/api/user/info",{
-    //
-    //     }
-    // }
-
-    // const bookTour = async () => {
-    //     try {
-    //         let token = JSON.parse(localStorage.getItem("user"));
-    //         await axios.post("http://localhost:8080/api/user/booking",
-    //             {
-    //                 "id": props.tour.id,
-    //                 "start": props.tour.start,
-    //                 "finish": props.tour.finish,
-    //                 "price": props.tour.price,
-    //                 "date": props.tour.date,
-    //                 "count": props.tour.count,
-    //                 "description": {
-    //                     "id": props.tour.description.id,
-    //                     "img": props.tour.description.img,
-    //                     "text": props.tour.description.text
-    //                 },
-    //                 "users": props.tour.users
-    //             },
-    //             {
-    //                 headers: {
-    //                     'Authorization': `Bearer ${token}`
-    //                 }}
-    //         ).then((response) => {
-    //             navigate("/profile")
-    //         })
-    //     } catch (err) {
-    //         console.error(err.message);
-    //     }
-    // };
     useEffect(() => {
         getUser();
     }, []);
 }
 
-function CarDetails(){
+const CarDetails = () => {
+    let navigate = useNavigate();
+    const {id} = useParams();
+    const [product, setProduct] = useState([]);
+    const getProduct = async () => {
+        try {
+            await axios.get("http://localhost:8080/api/products/"+id).then((response) => {
+                setProduct(response.data);
+            })
+        } catch (err) {
+            console.error(err.message);
+        }
+    };
+    useEffect(() => {
+        getProduct();
+    }, []);
+    const bookProduct = async () => {
+        try {
+            let token = JSON.parse(localStorage.getItem("user"));
+            await axios.post("http://localhost:8080/api/user/products/" + id,
+                {},
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            ).then((response) => {
+                navigate("/profile")
+            })
+        } catch (err) {
+            console.error(err.message);
+        }
+    };
     return(
         <div className="container marg4">
             <div className="row text-center">
@@ -88,52 +85,105 @@ function CarDetails(){
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <th scope="col">Бренд</th>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <th scope="col">Модель</th>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <th scope="col">Пробег</th>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <th scope="col">Год выпуска</th>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <th scope="col">Кузов</th>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <th scope="col">Цвет</th>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <th scope="col">Двигатель</th>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <th scope="col">Коробка</th>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <th scope="col">Руль</th>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <th scope="col">Количество владельцев</th>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <th scope="col">Цена</th>
-                            <td></td>
-                        </tr>
+
+                        {product.category === "NEW_CAR" &&
+                        <>
+                            <tr>
+                                <th scope="col">Бренд</th>
+                                <td>{product.brand}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Модель</th>
+                                <td>{product.model}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Год выпуска</th>
+                                <td>{product.release_year}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Кузов</th>
+                                <td>{product.body}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Цвет</th>
+                                <td>{product.color}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Двигатель</th>
+                                <td>{product.engine}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Коробка</th>
+                                <td>{product.drive}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Руль</th>
+                                <td>{product.wheel}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Цена</th>
+                                <td>{product.price}</td>
+                            </tr>
+                        </>
+                        }
+                        {product.category === "SUPPORT_CAR" &&
+                        <>
+                            <tr>
+                                <th scope="col">Бренд</th>
+                                <td>{product.brand}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Бренд</th>
+                                <td>{product.brand}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Модель</th>
+                                <td>{product.model}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Пробег</th>
+                                <td>{product.mileage}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Год выпуска</th>
+                                <td>{product.release_year}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Кузов</th>
+                                <td>{product.body}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Цвет</th>
+                                <td>{product.color}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Двигатель</th>
+                                <td>{product.engine}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Коробка</th>
+                                <td>{product.drive}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Руль</th>
+                                <td>{product.wheel}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Количество владельцев</th>
+                                <td>{product.number_of_owners}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Цена</th>
+                                <td>{product.price}</td>
+                            </tr>
+                        </>
+                        }
                         </tbody>
                     </Table>
+                    <Button className="btn btn-success" onClick={bookProduct}>Забронировать</Button>
+                </div>
+                <div className="col-xs-8">
+                    <img className="imgSt1" src={product.picture}/>
                 </div>
             </div>
         </div>

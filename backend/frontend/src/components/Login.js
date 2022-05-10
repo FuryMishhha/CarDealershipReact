@@ -11,7 +11,7 @@ const Login = () => {
         e.preventDefault();
         const body = { email: email, password: password };
         login(body);
-        navigate("/profile");
+        navigate("/products");
     };
     return (
         <div className="section">

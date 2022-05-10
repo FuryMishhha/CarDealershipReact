@@ -96,6 +96,9 @@ public class ProductService {
         Order order = new Order();
         Product product = productRepository.findById(id).orElse(null);
         order.setProduct_id(id);
+        String carInfoBrand = product.getBrand();
+        String carInfoModel = product.getModel();
+        order.setCarInfo(carInfoBrand + " " + carInfoModel);
         order.setUserId(user.getId());
         order.setStatus("Резерв");
 

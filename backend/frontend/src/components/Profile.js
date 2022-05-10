@@ -1,14 +1,14 @@
-import {useNavigate, useParams} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import "../css/profile.css";
 import axios from "axios";
-import {Button, Table} from "react-bootstrap";
-function MyVerticallyCenteredModalUser(props) {
-    let navigate = useNavigate();
-    const [user, setUser] = useState("");
+import {Table} from "react-bootstrap";
+
+const Profile = () => {
     const [id, setId] = useState("");
-    const [userName, setUserName] = useState("");
-    const [email, setEmail] = useState("");
+    const [userName, setUsername] = useState("");
+    const [roles, setRoles] = useState([]);
+    const [orders, setOrders] = useState([]);
+
     const getUser = async () => {
         try {
             let token = JSON.parse(localStorage.getItem("user"));
@@ -16,28 +16,10 @@ function MyVerticallyCenteredModalUser(props) {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }}).then((response) => {
-                setUser(response.data);
-                setId(response.data.id)
-                setUserName(response.data.username);
-                setEmail(response.data.email);
-            })
-        } catch (err) {
-            console.error(err.message);
-        }
-    };
-}
-
-const Profile = () => {
-    const [user, setUser] = useState([]);
-    const [email, setEmail] = useState("");
-    const getUser = async () => {
-        try {
-            let token = JSON.parse(localStorage.getItem("user"));
-            await axios.get("http://localhost:8080/api/user/info",{
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }}).then((response) => {
-                setUser(response.data);
+                setId(response.data.user.id)
+                setUsername(response.data.user.username)
+                setRoles(response.data.user.roles.map(role => (role.name)))
+                setOrders(response.data.orders.map(order => [order.carInfo, order.status]))
             })
         } catch (err) {
             console.error(err.message);
@@ -48,7 +30,7 @@ const Profile = () => {
     }, []);
     return(
         <div className="section">
-            <div className="row text-center">
+            <div className="row">
                 <div className="container">
                     <div className="col-xs-6 marg2">
                         <h4 className="under1">Данные аккаунта</h4>
@@ -57,15 +39,15 @@ const Profile = () => {
                             <tr>
                                 <th>ID</th>
                                 <th>Логин</th>
-                                <th>Почта</th>
                                 <th>Статус</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <td value = {user.id}/>
-                            <td value = {user.username}/>
-                            <td value = {user.email}/>
-                            <td />
+                            <tr>
+                            <td>{id}</td>
+                            <td>{userName}</td>
+                            <td>{roles.join(' ')}</td>
+                            </tr>
                             </tbody>
                         </Table>
                     </div>
@@ -79,8 +61,13 @@ const Profile = () => {
                             </tr>
                             </thead>
                             <tbody>
-                            <td value = ""/>
-                            <td value = ""/>
+                            {orders.map(order => (
+                                <tr key={null}>
+                                <td>{order[0]}</td>
+                                <td>{order[1]}</td>
+                                </tr>
+                                )
+                            )}
                             </tbody>
                         </Table>
                     </div>

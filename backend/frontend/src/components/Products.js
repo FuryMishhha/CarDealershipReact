@@ -1,145 +1,182 @@
 import {Button, Table} from "react-bootstrap";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
 import "../css/products.css"
 
-function ProductsPage(){
+const Products = () => {
     let navigate = useNavigate();
-    const [allProducts, setAllProducts] = useState([]);
-    const [products, setProducts] = useState([]);
-    const [brand, setBrand] = useState("");
-    const [model, setModel] = useState("");
-    const [body, setBody] = useState("");
-    const [release_year, setRelease_year] = useState(null);
-    let filterBrandNew = '';
-    let filterBodyNew = '';
-    let filterModelNew = '';
-    let filterBrandSup = '';
-    let filterBodySup = '';
-    let filterModelSup = '';
-    let filterReleaseYearSup = null;
-    let categories = null;
+    const [allNewProducts, setAllNewProducts] = useState([]);
+    const [newProducts, setNewProducts] = useState([]);
+    const [allSupProducts, setAllSupProducts] = useState([]);
+    const [supProducts, setSupProducts] = useState([]);
+    const [brandNew, setBrandNew] = useState("");
+    const [modelNew, setModelNew] = useState("");
+    const [bodyNew, setBodyNew] = useState("");
+    const [brandSup, setBrandSup] = useState("");
+    const [modelSup, setModelSup] = useState("");
+    const [bodySup, setBodySup] = useState("");
+    const [release_yearSup, setRelease_yearSup] = useState(null);
 
     const getProducts = async () => {
-        await axios
-            .get("http://localhost:8080/api/user/products")
-            .then(response => {
-                this.info = response.data
-                this.products = this.info.products
-                this.categories = this.info.categories
+        try {
+            let token = JSON.parse(localStorage.getItem("user"));
+            await axios.get("http://localhost:8080/api/products",{
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }}).then((response) => {
+                setNewProducts(response.data.filter(product=>product.category === "NEW_CAR" && product.order_id === null))
+                setAllNewProducts(response.data.filter(product=>product.category === "NEW_CAR" && product.order_id === null))
+                setSupProducts(response.data.filter(product=>product.category === "SUPPORT_CAR" && product.order_id === null))
+                setAllSupProducts(response.data.filter(product=>product.category === "SUPPORT_CAR" && product.order_id === null))
             })
-    }
-
-    // const showProduct = async (product) => {
-    //     location.href = "/products/{product.id}";
-    // }
+        } catch (err) {
+            console.error(err.message);
+        }
+    };
 
     function findProductsNew(brand, model, body){
-        if (brand.equals("") && !model.equals("") && !body.equals("")){
-            setProducts(allProducts.filter(product=>product.body === body && product.model === model))
+        if (brand==="" && model!=="" && body!==""){
+            setNewProducts(allNewProducts.filter(product=>product.body === body && product.model === model))
         }
-        if (!brand.equals("") && model.equals("") && !body.equals("")){
-            setProducts(allProducts.filter(product=>product.brand === brand && product.body === body))
+        if (brand!=="" && model==="" && body!==""){
+            setNewProducts(allNewProducts.filter(product=>product.brand === brand && product.body === body))
         }
-        if (!brand.equals("") && !model.equals("") && body.equals("")){
-            setProducts(allProducts.filter(product=>product.brand === brand && product.model === model))
-        }
-
-        if (!brand.equals("") && model.equals("") && body.equals("")){
-            setProducts(allProducts.filter(product=>product.brand === brand))
-        }
-        if (brand.equals("") && !model.equals("") && body.equals("")){
-            setProducts(allProducts.filter(product=>product.model === model))
-        }
-        if (brand.equals("") && model.equals("") && !body.equals("")){
-            setProducts(allProducts.filter(product=>product.body === body))
+        if (brand!=="" && model!=="" && body===""){
+            setNewProducts(allNewProducts.filter(product=>product.brand === brand && product.model === model))
         }
 
-        if (!brand.equals("") && !model.equals("") && !body.equals("")){
-            setProducts(allProducts.filter(product=>product.brand === brand && product.model === model && product.body === body))
+        if (brand!=="" && model==="" && body===""){
+            setNewProducts(allNewProducts.filter(product=>product.brand === brand))
+        }
+        if (brand==="" && model!=="" && body===""){
+            setNewProducts(allNewProducts.filter(product=>product.model === model))
+        }
+        if (brand==="" && model==="" && body!==""){
+            setNewProducts(allNewProducts.filter(product=>product.body === body))
+        }
+
+        if (brand!=="" && model!=="" && body!==""){
+            setNewProducts(allNewProducts.filter(product=>product.brand === brand && product.model === model && product.body === body))
+        }
+
+        if (brand==="" && model==="" && body===""){
+            setNewProducts(allNewProducts)
         }
     }
 
     function findProductsSup(brand, model, body, release_year){
-        if (brand.equals("") && !model.equals("") && !body.equals("") && release_year != null){
-            setProducts(allProducts.filter(product=>product.body === body && product.model === model && product.release_year === release_year))
+        release_year = Number(release_year)
+
+        if (brand==="" && model!=="" && body!=="" && release_year !== 0){
+            setSupProducts(allSupProducts.filter(product=>product.body === body && product.model === model && product.release_year === release_year))
         }
-        if (!brand.equals("") && model.equals("") && !body.equals("") && release_year != null){
-            setProducts(allProducts.filter(product=>product.body === body && product.brand === brand && product.release_year === release_year))
+        if (brand!=="" && model==="" && body!=="" && release_year !== 0){
+            setSupProducts(allSupProducts.filter(product=>product.body === body && product.brand === brand && product.release_year === release_year))
         }
-        if (!brand.equals("") && !model.equals("") && body.equals("") && release_year != null){
-            setProducts(allProducts.filter(product=>product.brand === brand && product.model === model && product.release_year === release_year))
+        if (brand!=="" && model!=="" && body==="" && release_year !== 0){
+            setSupProducts(allSupProducts.filter(product=>product.brand === brand && product.model === model && product.release_year === release_year))
         }
-        if (!brand.equals("") && !model.equals("") && !body.equals("") && release_year == null){
-            setProducts(allProducts.filter(product=>product.body === body && product.model === model && product.brand === brand))
+        if (brand!=="" && model!=="" && body!=="" && release_year === 0){
+            setSupProducts(allSupProducts.filter(product=>product.body === body && product.model === model && product.brand === brand))
         }
 
-        if (brand.equals("") && model.equals("") && !body.equals("") && release_year != null){
-            setProducts(allProducts.filter(product=>product.body === body && product.release_year === release_year))
+        if (brand==="" && model==="" && body!=="" && release_year !== 0){
+            setSupProducts(allSupProducts.filter(product=>product.body === body && product.release_year === release_year))
         }
-        if (brand.equals("") && !model.equals("") && body.equals("") && release_year != null){
-            setProducts(allProducts.filter(product=>product.model === model && product.release_year === release_year))
+        if (brand==="" && model!=="" && body==="" && release_year !== 0){
+            setSupProducts(allSupProducts.filter(product=>product.model === model && product.release_year === release_year))
         }
-        if (brand.equals("") && !model.equals("") && !body.equals("") && release_year == null){
-            setProducts(allProducts.filter(product=>product.body === body && product.model === model))
+        if (brand==="" && model!=="" && body!=="" && release_year === 0){
+            setSupProducts(allSupProducts.filter(product=>product.body === body && product.model === model))
         }
-        if (!brand.equals("") && model.equals("") && body.equals("") && release_year != null){
-            setProducts(allProducts.filter(product=>product.release_year === release_year && product.brand === brand))
+        if (brand!=="" && model==="" && body==="" && release_year !== 0){
+            setSupProducts(allSupProducts.filter(product=>product.release_year === release_year && product.brand === brand))
         }
-        if (!brand.equals("") && model.equals("") && !body.equals("") && release_year == null){
-            setProducts(allProducts.filter(product=>product.body === body && product.brand === brand))
+        if (brand!=="" && model==="" && body!=="" && release_year === 0){
+            setSupProducts(allSupProducts.filter(product=>product.body === body && product.brand === brand))
         }
-        if (!brand.equals("") && !model.equals("") && body.equals("") && release_year == null){
-            setProducts(allProducts.filter(product=>product.model === model && product.brand === brand))
-        }
-
-        if (!brand.equals("") && model.equals("") && body.equals("") && release_year == null){
-            setProducts(allProducts.filter(product=>product.brand === brand))
-        }
-        if (brand.equals("") && !model.equals("") && !body.equals("") && release_year == null){
-            setProducts(allProducts.filter(product=>product.model === model))
-        }
-        if (brand.equals("") && model.equals("") && !body.equals("") && release_year == null){
-            setProducts(allProducts.filter(product=>product.body === body))
-        }
-        if (brand.equals("") && model.equals("") && body.equals("") && release_year != null){
-            setProducts(allProducts.filter(product=>product.release_year === release_year))
+        if (brand!=="" && model!=="" && body==="" && release_year === 0){
+            setSupProducts(allSupProducts.filter(product=>product.model === model && product.brand === brand))
         }
 
-        if (!brand.equals("") && !model.equals("") && !body.equals("") && release_year != null){
-            setProducts(allProducts.filter(product=>product.body === body && product.model === model && product.release_year === release_year && product.brand === brand))
+        if (brand!=="" && model==="" && body==="" && release_year === 0){
+            setSupProducts(allSupProducts.filter(product=>product.brand === brand))
+        }
+        if (brand==="" && model!=="" && body!=="" && release_year === 0){
+            setSupProducts(allSupProducts.filter(product=>product.model === model))
+        }
+        if (brand==="" && model==="" && body!=="" && release_year === 0){
+            setSupProducts(allSupProducts.filter(product=>product.body === body))
+        }
+
+        if (brand==="" && model==="" && body==="" && release_year !== 0){
+            setSupProducts(allSupProducts.filter(product=>product.release_year === release_year))
+        }
+
+        if (brand!=="" && model!=="" && body!=="" && release_year !== 0){
+            setSupProducts(allSupProducts.filter(product=>product.body === body && product.model === model && product.release_year === release_year && product.brand === brand))
+        }
+
+        if (brand==="" && model==="" && body==="" && release_year === 0){
+            setSupProducts(allSupProducts)
         }
     }
 
-    const breakProductsSup = async () => {
-        filterBrandSup = ''
-        filterModelSup = ''
-        filterBodySup = ''
-        filterReleaseYearSup = null
-        await findProductsSup()
-    }
+    useEffect(()=>{
+        getProducts();
+    }, []);
 
-    const breakProductsNew = async () => {
-        filterBrandNew = ''
-        filterModelNew = ''
-        filterBodyNew = ''
-        await findProductsNew()
-    }
-}
-
-
-
-const Products = (props) => {
-    let navigate = useNavigate();
     return(
-
         <div className="container">
             <div className="row text-center">
-                <div className="marg3">
-
+                <div className="marg4">
+                    <h2>Новые автомобили</h2>
+                    <form className="marg4" onSubmit={findProductsNew}>
+                        <div className="col-xs-12">
+                            <label>
+                                <input
+                                    type="text"
+                                    className="form-control marg4"
+                                    value={brandNew}
+                                    placeholder="Бренд"
+                                    required
+                                    onChange={e => {
+                                        setBrandNew(e.target.value)
+                                        findProductsNew(e.target.value, modelNew, bodyNew)
+                                    }}
+                                />
+                            </label>
+                            <label>
+                                <input
+                                    type="text"
+                                    className="form-control marg4"
+                                    value={modelNew}
+                                    placeholder="Модель"
+                                    required
+                                    onChange={e => {
+                                        setModelNew(e.target.value)
+                                        findProductsNew(brandNew, e.target.value, bodyNew)
+                                    }}
+                                />
+                            </label>
+                            <label>
+                                <input
+                                    type="text"
+                                    className="form-control marg4"
+                                    value={bodyNew}
+                                    placeholder="Кузов"
+                                    required
+                                    onChange={e => {
+                                        setBodyNew(e.target.value)
+                                        findProductsNew(brandNew, modelNew, e.target.value)
+                                    }}
+                                />
+                            </label>
+                        </div>
+                    </form>
                 </div>
-                <Table className="marg3">
+                <Table className="marg4">
                     <thead>
                     <tr>
                         <th>Бренд</th>
@@ -150,7 +187,7 @@ const Products = (props) => {
                     </tr>
                     </thead>
                     <tbody>
-                    {props.products?.map(product => (
+                    {newProducts.map(product => (
                         <tr key={product.id}>
                             <td>{product.brand}</td>
                             <td>{product.model}</td>
@@ -163,10 +200,67 @@ const Products = (props) => {
                     ))}
                     </tbody>
                 </Table>
-                <div className="marg3">
-
+                <h2>Подержанные автомобили</h2>
+                <div className="marg4">
+                    <form className="marg4" onSubmit={findProductsSup}>
+                        <div className="col-xs-12">
+                            <label>
+                                <input
+                                    type="text"
+                                    className="form-control marg3"
+                                    value={brandSup}
+                                    placeholder="Бренд"
+                                    required
+                                    onChange={e => {
+                                        setBrandSup(e.target.value)
+                                        findProductsSup(e.target.value, modelSup, bodySup, release_yearSup)
+                                    }}
+                                />
+                            </label>
+                            <label>
+                                <input
+                                    type="text"
+                                    className="form-control marg3"
+                                    value={modelSup}
+                                    placeholder="Модель"
+                                    required
+                                    onChange={e => {
+                                        setModelSup(e.target.value)
+                                        findProductsSup(brandSup, e.target.value, bodySup, release_yearSup)
+                                    }}
+                                />
+                            </label>
+                            <label>
+                                <input
+                                    type="text"
+                                    className="form-control marg3"
+                                    value={bodySup}
+                                    placeholder="Кузов"
+                                    required
+                                    onChange={e => {
+                                        setBodySup(e.target.value)
+                                        findProductsSup(brandSup, modelSup, e.target.value, release_yearSup)
+                                    }}
+                                />
+                            </label>
+                            <label>
+                                <input
+                                    type="number"
+                                    id = "only_num"
+                                    className="form-control marg3"
+                                    value={release_yearSup}
+                                    placeholder="Год выпуска"
+                                    required
+                                    onChange={e => {
+                                        setRelease_yearSup(e.target.value)
+                                        findProductsSup(brandSup, modelSup, bodySup, e.target.value)
+                                    }}
+                                />
+                            </label>
+                        </div>
+                    </form>
                 </div>
-                <Table className="marg3">
+                <Table className="marg4">
                     <thead>
                     <tr>
                         <th>Бренд</th>
@@ -178,7 +272,7 @@ const Products = (props) => {
                     </tr>
                     </thead>
                     <tbody>
-                    {props.products?.map(product => (
+                    {supProducts.map(product => (
                         <tr key={product.id}>
                             <td>{product.brand}</td>
                             <td>{product.model}</td>

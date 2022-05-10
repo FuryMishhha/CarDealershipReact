@@ -13,23 +13,21 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/user")
-public class UserController {
-
-    @Autowired
-    UserService userService;
+public class ProductController {
 
     @Autowired
     ProductService productService;
 
-    @GetMapping("/profile")
-    public ProfileResponse getUserInfo(){
-        return userService.getProfile();
+    @GetMapping("/api/products")
+    public List<Product> getAllProducts(){
+        return productService.findAll();
     }
 
-
-    @PostMapping("/products/{id}")
-    public String bookProduct(@PathVariable Long id){
-        return productService.bookProduct(id);
+    @GetMapping("/api/products/{id}")
+    public Product showConcreteProduct(@PathVariable Long id){
+        return productService.findConcreteProduct(id);
     }
 }
+
+
+

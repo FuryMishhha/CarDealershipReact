@@ -16,12 +16,14 @@ public class Order implements Serializable {
     private int id;
     private Long userId;
     private Long product_id;
+    private String carInfo;
     private String status;
     private String creation_date;
 
-    public Order(Long userId, Long product_id, String status, String creation_date) {
+    public Order(Long userId, Long product_id, String carInfo, String status, String creation_date) {
         this.userId = userId;
         this.product_id = product_id;
+        this.carInfo = carInfo;
         this.status = status;
         this.creation_date = creation_date;
     }
@@ -68,5 +70,13 @@ public class Order implements Serializable {
 
     public void setCreation_date(String creation_date) {
         this.creation_date = creation_date;
+    }
+
+    public String getCarInfo() {
+        return carInfo;
+    }
+
+    public void setCarInfo(String carInfo) {
+        this.carInfo = carInfo;
     }
 }
