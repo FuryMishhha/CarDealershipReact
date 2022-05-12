@@ -37,7 +37,7 @@ public class ProductService {
                 || product.getColor().equals("") || product.getEngine().equals("")
                 || product.getDrive().equals("") || product.getWheel().equals("")
                 || product.getCategory().equals("") || product.getPicture().equals("")
-                || (product.getCategory().equals("SUPPORT_CAR") &&
+                || (product.getCategory().equals("SUP") &&
                 (product.getMileage() == null || product.getNumber_of_owners() == null))) {
 
             return null;
@@ -79,7 +79,7 @@ public class ProductService {
             if (!product.getColor().equals("")) updatedProduct.setColor(product.getColor());
             if (!product.getBody().equals("")) updatedProduct.setBody(product.getBody());
             if (!product.getEngine().equals("")) updatedProduct.setEngine(product.getEngine());
-            if (!product.getDrive().equals("")) updatedProduct.setDrive(product.getEngine());
+            if (!product.getDrive().equals("")) updatedProduct.setDrive(product.getDrive());
             if (!product.getWheel().equals("")) updatedProduct.setWheel(product.getWheel());
             if (!product.getCategory().equals("")) updatedProduct.setCategory(product.getCategory());
             if (!product.getPicture().equals("")) updatedProduct.setPicture(product.getPicture());
@@ -93,25 +93,32 @@ public class ProductService {
         User user = userRepository.findByUsername(String.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal()));
         String email = user.getUsername();
 
-        Order order = new Order();
-        Product product = productRepository.findById(id).orElse(null);
-        order.setProduct_id(id);
-        String carInfoBrand = product.getBrand();
-        String carInfoModel = product.getModel();
-        order.setCarInfo(carInfoBrand + " " + carInfoModel);
-        order.setUserId(user.getId());
-        order.setStatus("Резерв");
+        Product debugProduct = productRepository.findById(id).orElse(null);
 
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        Date date = new Date();
-        order.setCreation_date(dateFormat.format(date));
+        if (debugProduct.getOrder_id() == null){
+            Order order = new Order();
+            Product product = productRepository.findById(id).orElse(null);
+            order.setProduct_id(id);
+            String carInfoBrand = product.getBrand();
+            String carInfoModel = product.getModel();
+            order.setCarInfo(carInfoBrand + " " + carInfoModel);
+            order.setUserId(user.getId());
+            order.setStatus("Резерв");
 
-        orderService.addOrder(order);
+            DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            Date date = new Date();
+            order.setCreation_date(dateFormat.format(date));
 
-        product.setOrder_id(order.getId());
-        productRepository.save(product);
+            orderService.addOrder(order);
 
-        return "redirect:/api/user/account";
+            product.setOrder_id(order.getId());
+            productRepository.save(product);
+
+            return "redirect:/api/user/account";
+        }
+        else {
+            return "redirect:/api/products";
+        }
     }
 
     public void save(Product product) {
@@ -126,6 +133,9 @@ public class ProductService {
     public Product deleteProduct(Long id){
         Product product = productRepository.findById(id).orElse(null);
         if (product!=null){
+            if (product.getOrder_id() != null){
+                orderService.deleteOrder(product.getOrder_id());
+            }
             productRepository.deleteById(id);
             return product;
         }

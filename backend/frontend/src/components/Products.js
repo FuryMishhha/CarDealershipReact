@@ -5,6 +5,7 @@ import {useNavigate} from "react-router-dom";
 import "../css/products.css"
 
 const Products = () => {
+    let token = JSON.parse(localStorage.getItem("user"));
     let navigate = useNavigate();
     const [allNewProducts, setAllNewProducts] = useState([]);
     const [newProducts, setNewProducts] = useState([]);
@@ -20,15 +21,12 @@ const Products = () => {
 
     const getProducts = async () => {
         try {
-            let token = JSON.parse(localStorage.getItem("user"));
             await axios.get("http://localhost:8080/api/products",{
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }}).then((response) => {
-                setNewProducts(response.data.filter(product=>product.category === "NEW_CAR" && product.order_id === null))
-                setAllNewProducts(response.data.filter(product=>product.category === "NEW_CAR" && product.order_id === null))
-                setSupProducts(response.data.filter(product=>product.category === "SUPPORT_CAR" && product.order_id === null))
-                setAllSupProducts(response.data.filter(product=>product.category === "SUPPORT_CAR" && product.order_id === null))
+                }).then((response) => {
+                setNewProducts(response.data.filter(product=>product.category === "NEW" && product.order_id === null))
+                setAllNewProducts(response.data.filter(product=>product.category === "NEW" && product.order_id === null))
+                setSupProducts(response.data.filter(product=>product.category === "SUP" && product.order_id === null))
+                setAllSupProducts(response.data.filter(product=>product.category === "SUP" && product.order_id === null))
             })
         } catch (err) {
             console.error(err.message);
@@ -103,13 +101,12 @@ const Products = () => {
         if (brand!=="" && model==="" && body==="" && release_year === 0){
             setSupProducts(allSupProducts.filter(product=>product.brand === brand))
         }
-        if (brand==="" && model!=="" && body!=="" && release_year === 0){
+        if (brand==="" && model!=="" && body==="" && release_year === 0){
             setSupProducts(allSupProducts.filter(product=>product.model === model))
         }
         if (brand==="" && model==="" && body!=="" && release_year === 0){
             setSupProducts(allSupProducts.filter(product=>product.body === body))
         }
-
         if (brand==="" && model==="" && body==="" && release_year !== 0){
             setSupProducts(allSupProducts.filter(product=>product.release_year === release_year))
         }
@@ -192,7 +189,7 @@ const Products = () => {
                             <td>{product.brand}</td>
                             <td>{product.model}</td>
                             <td>{product.body}</td>
-                            <td>{product.price}</td>
+                            <td>{product.price}₽</td>
                             <td>
                                 <Button className="btn btn-success" onClick={() => navigate("/products/"+product.id,{product})}>Подробнее</Button>
                             </td>
@@ -278,7 +275,7 @@ const Products = () => {
                             <td>{product.model}</td>
                             <td>{product.body}</td>
                             <td>{product.release_year}</td>
-                            <td>{product.price}</td>
+                            <td>{product.price}₽</td>
                             <td>
                                 <Button className="btn btn-success" onClick={() => navigate("/products/"+product.id,{product})}>Подробнее</Button>
                             </td>

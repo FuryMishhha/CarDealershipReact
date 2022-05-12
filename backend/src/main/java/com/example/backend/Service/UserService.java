@@ -94,6 +94,10 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findById(id).orElse(null);
         if (user!=null){
             userRepository.deleteById(id);
+            List<Order> orders = orderRepository.findByUserId(id);
+            for (Order order : orders){
+                orderService.deleteOrder(order.getId());
+            }
             return user;
         }
         else return null;

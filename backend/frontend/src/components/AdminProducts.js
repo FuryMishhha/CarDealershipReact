@@ -9,8 +9,8 @@ function AdminProducts(){
     let navigate = useNavigate();
     const {id} = useParams();
     const data = [
-        { value: 'NEW_CAR', label: 'NEW_CAR' },
-        { value: 'SUPPORT_CAR', label: 'SUPPORT_CAR' }
+        { value: 'NEW', label: 'NEW' },
+        { value: 'SUP', label: 'SUP' }
     ]
     const [category, setCategory] = useState("");
     const [brand, setBrand] = useState("");
@@ -36,7 +36,7 @@ function AdminProducts(){
     const getProducts = async () => {
         try {
             let token = JSON.parse(localStorage.getItem("user"));
-            await axios.get("http://localhost:8080/api/products",{
+            await axios.get("http://localhost:8080/api/admin/products",{
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }}).then((response) => {
@@ -136,13 +136,12 @@ function AdminProducts(){
         if (brand!=="" && model==="" && body==="" && release_year === 0){
             setFilterProducts(allProducts.filter(product=>product.brand === brand))
         }
-        if (brand==="" && model!=="" && body!=="" && release_year === 0){
+        if (brand==="" && model!=="" && body==="" && release_year === 0){
             setFilterProducts(allProducts.filter(product=>product.model === model))
         }
         if (brand==="" && model==="" && body!=="" && release_year === 0){
             setFilterProducts(allProducts.filter(product=>product.body === body))
         }
-
         if (brand==="" && model==="" && body==="" && release_year !== 0){
             setFilterProducts(allProducts.filter(product=>product.release_year === release_year))
         }
@@ -206,7 +205,7 @@ function AdminProducts(){
                                     }}
                                 />
 
-                                {category === "SUPPORT_CAR" &&
+                                {category === "SUP" &&
                                 <>
                                     <input
                                         type="number"
@@ -268,7 +267,7 @@ function AdminProducts(){
                                         setWheel(e.target.value)
                                     }}
                                 />
-                                {category === "SUPPORT_CAR" &&
+                                {category === "SUP" &&
                                 <>
                                     <input
                                         type="number"
@@ -391,7 +390,7 @@ function AdminProducts(){
                                 <td>{product.category}</td>
                                 <td>{product.brand}</td>
                                 <td>{product.model}</td>
-                                <td>{product.mileage}</td>
+                                <td>{product.mileage}км</td>
                                 <td>{product.release_year}</td>
                                 <td>{product.body}</td>
                                 <td>{product.color}</td>
@@ -399,9 +398,9 @@ function AdminProducts(){
                                 <td>{product.drive}</td>
                                 <td>{product.wheel}</td>
                                 <td>{product.number_of_owners}</td>
-                                <td>{product.price}</td>
+                                <td>{product.price}₽</td>
                                 <td>
-                                    <Button className="btn btn-success" onClick={() => navigate("/admin/products/"+product.id,{product})}>Подробнее</Button>
+                                    <Button className="btn btn-success" onClick={() => navigate("/admin/products/"+product.id,{product})}>Изменить</Button>
                                 </td>
                                 <td>
                                     <Button className="btn btn-danger" onClick={() =>deleteProduct(product.id)}>Удалить</Button>

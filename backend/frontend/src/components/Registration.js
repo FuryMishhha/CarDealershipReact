@@ -22,6 +22,13 @@ const Registration = () => {
             console.error(err.message);
         }
     };
+
+    const errorPass = () =>{
+        return(
+            alert("Пароли не совпадают")
+        )
+    }
+
     return (
         <div className="section">
             <div className="container">
@@ -59,9 +66,16 @@ const Registration = () => {
                                     onChange={e => setPasswordConfirm(e.target.value)}
                                 />
                             </div>
+                            {password === passwordConfirm &&
+                                <div className="col-xs-6 col-xs-offset-3">
+                                    <Button className="btn btn-success marg1" type="submit">Зарегистрироваться</Button>
+                                </div>
+                            }
+                            {password !== passwordConfirm &&
                             <div className="col-xs-6 col-xs-offset-3">
-                                <Button className="btn btn-success marg1" type="submit">Зарегистрироваться</Button>
+                                <Button className="btn btn-success marg1" onClick={errorPass}>Зарегистрироваться</Button>
                             </div>
+                            }
                         </form>
                         <div className="col-xs-6 col-xs-offset-3">
                             <div className="marg1">

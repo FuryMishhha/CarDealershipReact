@@ -1,44 +1,12 @@
 import "../css/carDetails.css"
 import {
     Button,
-    Card,
-    CardImg,
-    Form,
-    Col,
-    Container, FormControl,
-    InputGroup,
-    ListGroup,
-    ListGroupItem,
-    Modal,
-    Row,
-    Stack, Table
+    Table
 } from "react-bootstrap";
 import {Link, useNavigate, useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
 import React from 'react';
 import axios from "axios";
-function CarDetails_(props) {
-    let navigate = useNavigate();
-    const [user, setUser] = useState([]);
-    const getUser = async () => {
-        try {
-            let token = JSON.parse(localStorage.getItem("user"));
-            await axios.get("http://localhost:8080/api/user/info", {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            }).then((response) => {
-                setUser(response.data);
-            })
-        } catch (err) {
-            console.error(err.message);
-        }
-    };
-
-    useEffect(() => {
-        getUser();
-    }, []);
-}
 
 const CarDetails = () => {
     let navigate = useNavigate();
@@ -53,9 +21,11 @@ const CarDetails = () => {
             console.error(err.message);
         }
     };
+
     useEffect(() => {
         getProduct();
     }, []);
+
     const bookProduct = async () => {
         try {
             let token = JSON.parse(localStorage.getItem("user"));
@@ -73,6 +43,13 @@ const CarDetails = () => {
             console.error(err.message);
         }
     };
+
+    const nullUser = () =>{
+        return(
+            alert("Для того, чтобы совершить эту операцию, вам необходимо войти в Ваш аккаунт")
+        )
+    }
+
     return(
         <div className="container marg4">
             <div className="row text-center">
@@ -86,7 +63,7 @@ const CarDetails = () => {
                         </thead>
                         <tbody>
 
-                        {product.category === "NEW_CAR" &&
+                        {product.category === "NEW" &&
                         <>
                             <tr>
                                 <th scope="col">Бренд</th>
@@ -122,11 +99,11 @@ const CarDetails = () => {
                             </tr>
                             <tr>
                                 <th scope="col">Цена</th>
-                                <td>{product.price}</td>
+                                <td>{product.price}₽</td>
                             </tr>
                         </>
                         }
-                        {product.category === "SUPPORT_CAR" &&
+                        {product.category === "SUP" &&
                         <>
                             <tr>
                                 <th scope="col">Бренд</th>
@@ -142,7 +119,7 @@ const CarDetails = () => {
                             </tr>
                             <tr>
                                 <th scope="col">Пробег</th>
-                                <td>{product.mileage}</td>
+                                <td>{product.mileage}км</td>
                             </tr>
                             <tr>
                                 <th scope="col">Год выпуска</th>
@@ -174,13 +151,18 @@ const CarDetails = () => {
                             </tr>
                             <tr>
                                 <th scope="col">Цена</th>
-                                <td>{product.price}</td>
+                                <td>{product.price}₽</td>
                             </tr>
                         </>
                         }
                         </tbody>
                     </Table>
+                    {localStorage.getItem("user") !== null &&
                     <Button className="btn btn-success" onClick={bookProduct}>Забронировать</Button>
+                    }
+                    {localStorage.getItem("user") === null &&
+                    <Button className="btn btn-success" onClick={nullUser}>Забронировать</Button>
+                    }
                 </div>
                 <div className="col-xs-8">
                     <img className="imgSt1" src={product.picture}/>

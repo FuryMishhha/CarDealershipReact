@@ -4,28 +4,6 @@ import axios from "axios";
 import {Button, Table} from "react-bootstrap";
 import "../css/productsDetails.css"
 
-function ProductDetails_(){
-    const [user, setUser] = useState([]);
-    const getUser = async () => {
-        try {
-            let token = JSON.parse(localStorage.getItem("user"));
-            await axios.get("http://localhost:8080/api/user/info", {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            }).then((response) => {
-                setUser(response.data);
-            })
-        } catch (err) {
-            console.error(err.message);
-        }
-    };
-
-    useEffect(() => {
-        getUser();
-    }, []);
-}
-
 const ProductDetails = () => {
     const {id} = useParams();
     let navigate = useNavigate();
@@ -107,7 +85,7 @@ const ProductDetails = () => {
                         </thead>
                         <tbody>
 
-                        {product.category === "NEW_CAR" &&
+                        {product.category === "NEW" &&
                         <>
                             <tr>
                                 <th scope="col">Бренд</th>
@@ -271,7 +249,7 @@ const ProductDetails = () => {
                             </tr>
                         </>
                         }
-                        {product.category === "SUPPORT_CAR" &&
+                        {product.category === "SUP" &&
                         <>
                             <tr>
                                 <th scope="col">Бренд</th>

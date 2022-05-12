@@ -25,9 +25,11 @@ const Profile = () => {
             console.error(err.message);
         }
     };
+
     useEffect(() => {
         getUser();
     }, []);
+
     return(
         <div className="section">
             <div className="row">

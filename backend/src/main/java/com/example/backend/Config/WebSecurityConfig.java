@@ -38,7 +38,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
                 .and()
                 .authorizeHttpRequests()
                 .antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/","/products/**","/login","/registration").permitAll()
+                .antMatchers("/","/api/products/**","/login","/registration").permitAll()
                 .antMatchers("/api/user/**","/logout","/profile").hasRole("USER")
                 .antMatchers("/api/admin/**","/admin").hasRole("ADMIN")
                 .anyRequest().permitAll().and()
