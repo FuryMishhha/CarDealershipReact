@@ -24,40 +24,42 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
 public class UserService implements UserDetailsService {
-    @PersistenceContext
-    private EntityManager em;
-
     @Autowired
     UserRepository userRepository;
-
     @Autowired
     OrderService orderService;
-
     @Autowired
     ProductService productService;
-
     @Autowired
     RoleRepository roleRepository;
-
     @Autowired
     ProductRepository productRepository;
-
     @Autowired
     OrderRepository orderRepository;
-
     @Autowired
     JWTUtil jwtUtil;
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+
+    public String saveUser(User user) {
+        if (userRepository.findByUsername(user.getUsername()) != null) {
+            return "Этот логин занят";
+        }
+        else if (user.getUsername() == null || user.getPassword() == null){
+            return "Одно из поле не заполнено";
+        }
+        else {
+            user.setRoles(List.of(new Role(1L, "ROLE_USER")));
+            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+            userRepository.save(user);
+            return "Пользователь создан";
+        }
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -78,16 +80,6 @@ public class UserService implements UserDetailsService {
 
     public List<User> allUsers() {
         return userRepository.findAll();
-    }
-
-    public String saveUser(User user) {
-        if (userRepository.findByUsername(user.getUsername()) != null) {
-            return "Этот логин занят";
-        }
-        user.setRoles(List.of(new Role(1L,"ROLE_USER")));
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
-        return "";
     }
 
     public User deleteUser(Long id) {

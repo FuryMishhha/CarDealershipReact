@@ -19,17 +19,7 @@ public class AuthController {
 
     @PostMapping("/registration")
     public String addUser(@RequestBody User userForm) {
-        if (userForm.getUsername().equals("")||
-                userForm.getPassword().equals("")){
-            return userForm.toString();
-        }
-        if (!userForm.getPassword().equals(userForm.getPasswordConfirm())){
-            return "Введите пароль заново";
-        }
-        String answer = userService.saveUser(userForm);
-        if (!answer.equals("")){
-            return "usernameError";
-        }
+        userService.saveUser(userForm);
         return "redirect:/login";
     }
 
