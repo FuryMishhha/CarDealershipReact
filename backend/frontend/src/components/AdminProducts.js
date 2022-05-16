@@ -390,7 +390,9 @@ function AdminProducts(){
                                 <td>{product.category}</td>
                                 <td>{product.brand}</td>
                                 <td>{product.model}</td>
-                                <td>{product.mileage}км</td>
+                                <td>{product.mileage}{product.category === 'SUP' &&
+                                'км'}
+                                </td>
                                 <td>{product.release_year}</td>
                                 <td>{product.body}</td>
                                 <td>{product.color}</td>

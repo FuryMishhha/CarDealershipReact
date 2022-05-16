@@ -2,15 +2,25 @@ import React, { useState } from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {Button} from 'react-bootstrap';
 import '../css/login.css';
-import {login} from '../actions/Auth';
+import axios from "axios";
 const Login = () => {
     let navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const onSubmitLogin = async e => {
         e.preventDefault();
-        const body = { email: email, password: password };
-        login(body);
+        try {
+            await axios.post("http://localhost:8080/api/auth/login", {
+                email: email,
+                password: password
+            }).then(response => {
+                if (response.data) {
+                    localStorage.setItem("user", JSON.stringify(response.data));
+                }
+            })
+        } catch (err) {
+            console.error(err.message);
+        }
         navigate("/profile")
         window.location.reload()
     };

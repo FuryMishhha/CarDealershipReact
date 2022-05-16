@@ -8,8 +8,8 @@ const Users = () =>{
     let navigate = useNavigate();
     const [allUsers, setAllUsers] = useState([]);
     const [filterUsers, setFilterUsers] = useState([]);
-    const [userUsernameFilter, setUserUsernameFilter] = useState(null);
-    const [userIdFilter, setUserIdFilter] = useState(null);
+    const [userUsernameFilter, setUserUsernameFilter] = useState("");
+    const [userIdFilter, setUserIdFilter] = useState("");
 
     const getUsers = async () => {
         try {

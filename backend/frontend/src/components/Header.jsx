@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 import axios from "axios";
 
 const Header = () => {
+    let navigate = useNavigate();
     let [isAdmin, setIsAdmin] = useState(false);
 
     const getUser = async () => {
@@ -25,8 +26,8 @@ const Header = () => {
         try {
             localStorage.removeItem("user")
             axios.get("http://localhost:8080/logout")
-            window.location.reload("/")
-            console.log(13333)
+            navigate("/")
+            window.location.reload()
         } catch (err) {
             console.error(err.message)
         }

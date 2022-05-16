@@ -13,8 +13,7 @@ const Registration = () => {
         try {
             const body = {
                 password: password,
-                username: username,
-                passwordConfirm: passwordConfirm
+                username: username
             };
             await axios.post("http://localhost:8080/api/auth/registration", body);
             navigate("/login");
@@ -38,7 +37,7 @@ const Registration = () => {
                         <form className="marg1" onSubmit={onSubmitLogin}>
                             <div className="col-xs-6 col-xs-offset-3">
                                 <input
-                                    type="username"
+                                    type="email"
                                     className="form-control marg1"
                                     value={username}
                                     placeholder="Введите вашу почту"

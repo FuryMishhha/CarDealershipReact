@@ -10,7 +10,6 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
-    private static final long serialVersionUID = 575591615004831395L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,9 +18,6 @@ public class User implements UserDetails {
     @Column(name = "password")
     private String password;
 
-    @Transient
-    private String passwordConfirm;
-
     @ManyToMany(fetch=FetchType.EAGER)
     @JoinTable(name="users_roles",
             joinColumns = {@JoinColumn(name="user_id", referencedColumnName="id")},
@@ -29,10 +25,9 @@ public class User implements UserDetails {
     )
     private List<Role> roles;
 
-    public User(String username, String password, String passwordConfirm) {
+    public User(String username, String password) {
         this.username = username;
         this.password = password;
-        this.passwordConfirm = passwordConfirm;
     }
 
     public User() {
@@ -98,21 +93,12 @@ public class User implements UserDetails {
         this.username = username;
     }
 
-    public String getPasswordConfirm() {
-        return passwordConfirm;
-    }
-
-    public void setPasswordConfirm(String passwordConfirm) {
-        this.passwordConfirm = passwordConfirm;
-    }
-
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
-                ", passwordConfirm='" + passwordConfirm + '\'' +
                 ", roles=" + roles +
                 '}';
     }
